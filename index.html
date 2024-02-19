@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <!-- <h1>Roti khake ho gai iski mujhe bhuk lag rahi</h1> -->
+    <div class="container border mt-5">
+      <div class="row">
+        <!-- <div class="col-3 border">hello</div> -->
+        <div class="col border p-3">
+          <div class="input-group">
+            <input
+              type="text"
+              name="friendId"
+              id="friendId"
+              class="form-control"
+              placeholder="Friend Id"
+            />
+
+            <input
+              type="button"
+              name="connect"
+              id="connect"
+              class="btn btn-outline-primary"
+              value="Connect"
+              onclick="createConnection()"
+            />
+          </div>
+          <div class="row" >
+            <div class="col chat-container p-3" style="height: 400px; overflow-y: scroll"></div>
+          </div>
+          <div class="row">
+            <p class="text-muted">
+              My Id: <span class="my-id"></span>
+              <a
+                onclick="onCopyId()"
+                href="#"
+                class=""
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                data-bs-custom-class="custom-tooltip"
+                data-bs-title="Copy"
+                ><i class="fa-regular fa-clipboard"></i
+              ></a>
+            </p>
+            <div class="input-group">
+              <input
+                type="text"
+                name="message"
+                id="message"
+                class="form-control"
+                placeholder="Message"
+              />
+
+              <input
+                type="button"
+                name="send"
+                id="send"
+                class="btn btn-outline-primary"
+                value="Send"
+                disabled
+                onclick="onSendMessage()"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://kit.fontawesome.com/d4aea3285d.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      const tooltipList = [...tooltipTriggerList].map(
+        (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+      );
+
+      const chats = [];
+      var peer = new Peer();
+      var globle_conn = null;
+      var myId = null;
+      var friendId = null;
+      peer.on("open", function (id) {
+        myId = id;
+        console.log("My peer ID is: " + id);
+        document.querySelector(".my-id").innerHTML = id;
+        peer.on("connection", function (conn) {
+          globle_conn = conn;
+          console.log("conn", conn);
+          onConnectionDone(conn.peer);
+          // Receive messages
+          conn.on("data", function (data) {
+            console.log("Received", data);
+            updateChat(conn.peer, data);
+            // chats.push({id:conn.peer,message:data})
+            // document.querySelector('.chat-container').innerHTML = chats.map(item=>`<p class="${item.id==myId?'text-end':'text-start'}">${item.message}</p>`).join('')
+          });
+
+          // Send messages
+          conn.send("Hello!");
+        });
+      });
+
+      function createConnection() {
+        const id = document.querySelector("#friendId").value;
+        console.log("createConnection id:", id);
+        var conn = peer.connect(id);
+        console.log("createConnection conn:", conn);
+        globle_conn = conn;
+        onConnectionDone(conn.peer);
+        globle_conn.on("data", function (data) {
+          console.log("Received", data);
+          updateChat(conn.peer, data);
+          // chats.push({id:conn.peer,message:data})
+          // document.querySelector('.chat-container').innerHTML = chats.map(item=>`<p class="${item.id==myId?'text-end':'text-start'}">${item.message}</p>`).join('')
+        });
+      }
+      function onConnectionDone(id) {
+        friendId = id;
+        document.querySelector("#connect").value = "Connected";
+        document.querySelector("#friendId").value = id;
+        document.querySelector("#send").removeAttribute("disabled");
+      }
+      function onSendMessage() {
+        const message = document.querySelector("#message");
+        if (message.value) {
+          const data = { message: message.value, date: Date.now() };
+          globle_conn.send(data);
+          updateChat(myId, data);
+          // chats.push({id:myId,message:message.value})
+          // document.querySelector('.chat-container').innerHTML = chats.map(item=>`<p class="${item.id==myId?'text-end':'text-start'}">${item.message}</p>`).join('')
+        }
+        message.value = "";
+      }
+      function updateChat(id, data) {
+        chats.push({ id: id, message: data.message, date: data.date });
+        const chatContainer = document.querySelector(".chat-container");
+        chatContainer.innerHTML = chats
+          .map(
+            (item) =>
+              `<div class="d-flex ${
+                item.id == myId ? "flex-row-reverse" : ""
+              } my-2 " >
+              <div class="bg-light px-3 d-inline-block rounded-pill" style="max-width:50%">
+                <span >
+                ${
+                  item.message
+                }</span> <br/> <span class="text-muted fs-6">${new Date(
+                item.date
+              ).toLocaleString()}</span></div></div>`
+          )
+          .join("");
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      function onCopyId() {
+        const myIdDom = document.querySelector(".my-id");
+        navigator.clipboard.writeText(myIdDom.innerHTML);
+        // console.log('myIdDom.nextElementSibling',myIdDom.nextElementSibling)
+        // myIdDom.nextElementSibling.setAttribute('data-bs-title','Copied')
+      }
+    </script>
+  </body>
+</html>
