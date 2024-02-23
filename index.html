@@ -209,7 +209,7 @@
 
         if (navigator.getUserMedia) {
           navigator.getUserMedia(
-            { audio: false, video: { width: 1280, height: 720 } },
+            { audio: true, video: { width: 1280, height: 720 } },
             (stream) => {
               console.log("stream", stream);
               const video = document.querySelector("#myVideo");
@@ -251,7 +251,7 @@
 
         if (navigator.getUserMedia) {
           navigator.getUserMedia(
-            { audio: false, video: { width: 1280, height: 720 } },
+            { audio: true, video: { width: 1280, height: 720 } },
             (stream) => {
               console.log("stream", stream);
               const video = document.querySelector("#myVideo");
