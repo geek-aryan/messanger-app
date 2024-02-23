@@ -14,6 +14,7 @@
   <body>
     <!-- <h1>Roti khake ho gai iski mujhe bhuk lag rahi</h1> -->
     <div class="container border mt-5">
+      <video src="" width="300" height="300"></video>
       <div class="row">
         <!-- <div class="col-3 border">hello</div> -->
         <div class="col border p-3">
@@ -35,41 +36,57 @@
               onclick="createConnection()"
             />
           </div>
-          <div class="row" >
-            <div class="col chat-container p-3" style="height: 400px; overflow-y: scroll"></div>
-          </div>
           <div class="row">
-            <p class="text-muted">
-              My Id: <span class="my-id"></span>
-              <a
-                onclick="onCopyId()"
-                href="#"
-                class=""
-                data-bs-toggle="tooltip"
-                data-bs-placement="top"
-                data-bs-custom-class="custom-tooltip"
-                data-bs-title="Copy"
-                ><i class="fa-regular fa-clipboard"></i
-              ></a>
-            </p>
-            <div class="input-group">
-              <input
-                type="text"
-                name="message"
-                id="message"
-                class="form-control"
-                placeholder="Message"
-              />
+            <div
+              class="col chat-container p-3"
+              style="height: 400px; overflow-y: scroll"
+            ></div>
+          </div>
+          <p class="text-muted">
+            My Id: <span class="my-id"></span>
+            <a
+              onclick="onCopyId()"
+              href="#"
+              class=""
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              data-bs-custom-class="custom-tooltip"
+              data-bs-title="Copy"
+              ><i class="fa-regular fa-clipboard"></i
+            ></a>
+          </p>
+          <div class="row">
+            <div>
+              <div class="input-group">
+                <input
+                  type="text"
+                  name="message"
+                  id="message"
+                  class="form-control"
+                  placeholder="Message"
+                />
 
-              <input
-                type="button"
-                name="send"
-                id="send"
+                <input
+                  type="button"
+                  name="send"
+                  id="send"
+                  class="btn btn-outline-primary"
+                  value="Send"
+                  disabled
+                  onclick="onSendMessage()"
+                />
+              </div>
+            </div>
+
+            <div class="p-3">
+              <button
                 class="btn btn-outline-primary"
-                value="Send"
-                disabled
-                onclick="onSendMessage()"
-              />
+                id="call"
+                onclick="onCall()"
+              >
+                <i class="fa-solid fa-phone"></i>
+                <!-- Call -->
+              </button>
             </div>
           </div>
         </div>
@@ -182,6 +199,81 @@
         // console.log('myIdDom.nextElementSibling',myIdDom.nextElementSibling)
         // myIdDom.nextElementSibling.setAttribute('data-bs-title','Copied')
       }
+
+      function onCall() {
+        navigator.getUserMedia =
+          navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia;
+
+        if (navigator.getUserMedia) {
+          navigator.getUserMedia(
+            { audio: true, video: { width: 1280, height: 720 } },
+            (stream) => {
+              console.log("stream", stream);
+              const video = document.querySelector("video");
+              video.srcObject = stream;
+              video.onloadedmetadata = (e) => {
+                video.play();
+              };
+              //------------------
+              var call = peer.call(
+                document.querySelector("#friendId").value,
+                stream
+              );
+              console.log("call:", call);
+              call.on("stream", function (stream) {
+                console.log("ON stream");
+                // `stream` is the MediaStream of the remote peer.
+                // Here you'd add it to an HTML video/canvas element.
+              });
+            },
+            (err) => {
+              console.error(`The following error occurred: ${err.name}`);
+            }
+          );
+        } else {
+          console.log("getUserMedia not supported");
+        }
+      }
+      peer.on("call", function (call) {
+        navigator.getUserMedia =
+          navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia;
+
+        if (navigator.getUserMedia) {
+          navigator.getUserMedia(
+            { audio: true, video: { width: 1280, height: 720 } },
+            (stream) => {
+              console.log("stream", stream);
+              const video = document.querySelector("video");
+              video.srcObject = stream;
+              video.onloadedmetadata = (e) => {
+                video.play();
+              };
+              //------------------
+              // Answer the call, providing our mediaStream
+              call.answer(stream);
+            },
+            (err) => {
+              console.error(`The following error occurred: ${err.name}`);
+            }
+          );
+        } else {
+          console.log("getUserMedia not supported");
+        }
+
+        // const mediaStream = (stream) => {
+        //   console.log("stream target", stream);
+        // };
+      });
+      // const mediaStream = (stream) => {
+      //   console.log("stream", stream);
+      // };
+      peer.on("error", function (err) {
+        console.log("error", error);
+      });
     </script>
   </body>
 </html>
