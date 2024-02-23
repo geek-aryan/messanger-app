@@ -14,7 +14,8 @@
   <body>
     <!-- <h1>Roti khake ho gai iski mujhe bhuk lag rahi</h1> -->
     <div class="container border mt-5">
-      <video src="" width="300" height="300"></video>
+      <video src="" width="300" height="300" id="myVideo"></video>
+      <video src="" width="300" height="300" id="friendVideo"></video>
       <div class="row">
         <!-- <div class="col-3 border">hello</div> -->
         <div class="col border p-3">
@@ -208,10 +209,10 @@
 
         if (navigator.getUserMedia) {
           navigator.getUserMedia(
-            { audio: true, video: { width: 1280, height: 720 } },
+            { audio: false, video: { width: 1280, height: 720 } },
             (stream) => {
               console.log("stream", stream);
-              const video = document.querySelector("video");
+              const video = document.querySelector("#myVideo");
               video.srcObject = stream;
               video.onloadedmetadata = (e) => {
                 video.play();
@@ -224,6 +225,12 @@
               console.log("call:", call);
               call.on("stream", function (stream) {
                 console.log("ON stream");
+                console.log("stream of frnd", stream);
+                const video = document.querySelector("#friendVideo");
+                video.srcObject = stream;
+                video.onloadedmetadata = (e) => {
+                  video.play();
+                };
                 // `stream` is the MediaStream of the remote peer.
                 // Here you'd add it to an HTML video/canvas element.
               });
@@ -244,10 +251,10 @@
 
         if (navigator.getUserMedia) {
           navigator.getUserMedia(
-            { audio: true, video: { width: 1280, height: 720 } },
+            { audio: false, video: { width: 1280, height: 720 } },
             (stream) => {
               console.log("stream", stream);
-              const video = document.querySelector("video");
+              const video = document.querySelector("#myVideo");
               video.srcObject = stream;
               video.onloadedmetadata = (e) => {
                 video.play();
@@ -264,13 +271,19 @@
           console.log("getUserMedia not supported");
         }
 
-        // const mediaStream = (stream) => {
-        //   console.log("stream target", stream);
-        // };
+        call.on("stream", function (stream) {
+          console.log("ON stream");
+          console.log("stream of frnd", stream);
+          const video = document.querySelector("#friendVideo");
+          video.srcObject = stream;
+          video.onloadedmetadata = (e) => {
+            video.play();
+          };
+          // `stream` is the MediaStream of the remote peer.
+          // Here you'd add it to an HTML video/canvas element.
+        });
       });
-      // const mediaStream = (stream) => {
-      //   console.log("stream", stream);
-      // };
+
       peer.on("error", function (err) {
         console.log("error", error);
       });
