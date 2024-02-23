@@ -171,8 +171,13 @@
 
       function createConnection() {
         const id = document.querySelector("#friendId").value;
+        if (!id) {
+          alert("Please provide a friend Id to connect");
+          return;
+        }
         console.log("createConnection id:", id);
         var conn = peer.connect(id);
+        console.log("_open", conn._open);
         console.log("createConnection conn:", conn);
         globle_conn = conn;
         onConnectionDone(conn.peer);
@@ -229,6 +234,12 @@
       }
 
       function onCall() {
+        if (!globle_conn) {
+          alert(
+            "You are not connected.\nPlease connect first with friend Id !"
+          );
+          return;
+        }
         navigator.getUserMedia =
           navigator.getUserMedia ||
           navigator.webkitGetUserMedia ||
