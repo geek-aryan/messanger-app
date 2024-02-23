@@ -10,12 +10,49 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
+    <style>
+      video {
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <!-- <h1>Roti khake ho gai iski mujhe bhuk lag rahi</h1> -->
-    <div class="container border mt-5">
-      <video src="" width="300" height="300" id="myVideo" muted></video>
-      <video src="" width="300" height="300" id="friendVideo"></video>
+    <div class="container mt-5">
+      <div class="row border p-3">
+        <div class="col-md-6">
+          <video
+            src="https://t4.ftcdn.net/jpg/02/23/50/73/360_F_223507349_F5RFU3kL6eMt5LijOaMbWLeHUTv165CB.jpg"
+            id="myVideo"
+            muted
+            hidden
+          ></video>
+        </div>
+        <div class="col-md-6">
+          <video
+            hidden
+            src="https://t4.ftcdn.net/jpg/02/23/50/73/360_F_223507349_F5RFU3kL6eMt5LijOaMbWLeHUTv165CB.jpg"
+            id="friendVideo"
+          ></video>
+        </div>
+        <div class="text-center p-3">
+          <button class="btn btn-danger" id="disconnect" hidden>
+            <i class="fa-solid fa-video-slash"></i>
+            Turn off Video
+          </button>
+          <div class="p-3">
+            <button
+              class="btn btn-outline-primary"
+              id="call"
+              onclick="onCall()"
+            >
+              <i class="fa-solid fa-video"></i>
+              Turn on Video
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <!-- <div class="col-3 border">hello</div> -->
         <div class="col border p-3">
@@ -37,6 +74,7 @@
               onclick="createConnection()"
             />
           </div>
+
           <div class="row">
             <div
               class="col chat-container p-3"
@@ -77,17 +115,6 @@
                   onclick="onSendMessage()"
                 />
               </div>
-            </div>
-
-            <div class="p-3">
-              <button
-                class="btn btn-outline-primary"
-                id="call"
-                onclick="onCall()"
-              >
-                <i class="fa-solid fa-phone"></i>
-                <!-- Call -->
-              </button>
             </div>
           </div>
         </div>
@@ -213,6 +240,9 @@
             (stream) => {
               console.log("stream", stream);
               const video = document.querySelector("#myVideo");
+              document.querySelector("#myVideo").removeAttribute("hidden");
+              document.querySelector("#disconnect").removeAttribute("hidden");
+              document.querySelector("#call").setAttribute("hidden", true);
               video.srcObject = stream;
               video.onloadedmetadata = (e) => {
                 video.play();
@@ -226,6 +256,9 @@
               call.on("stream", function (stream) {
                 console.log("ON stream");
                 console.log("stream of frnd", stream);
+                document
+                  .querySelector("#friendVideo")
+                  .removeAttribute("hidden");
                 const video = document.querySelector("#friendVideo");
                 video.srcObject = stream;
                 video.onloadedmetadata = (e) => {
@@ -255,6 +288,7 @@
             (stream) => {
               console.log("stream", stream);
               const video = document.querySelector("#myVideo");
+              document.querySelector("#myVideo").removeAttribute("hidden");
               video.srcObject = stream;
               video.onloadedmetadata = (e) => {
                 video.play();
@@ -274,6 +308,7 @@
         call.on("stream", function (stream) {
           console.log("ON stream");
           console.log("stream of frnd", stream);
+          document.querySelector("#friendVideo").removeAttribute("hidden");
           const video = document.querySelector("#friendVideo");
           video.srcObject = stream;
           video.onloadedmetadata = (e) => {
@@ -286,6 +321,27 @@
 
       peer.on("error", function (err) {
         console.log("error", error);
+      });
+
+      document.querySelector("#disconnect").addEventListener("click", () => {
+        document.querySelector("#call").removeAttribute("hidden");
+
+        document.querySelector("#disconnect").setAttribute("hidden", true);
+        document.querySelector("#myVideo").setAttribute("hidden", true);
+        console.log(
+          'document.querySelector("#myVideo").srcObject',
+          document.querySelector("#myVideo").srcObject.getTracks()
+        );
+        const tracks = document.querySelector("#myVideo").srcObject.getTracks();
+        tracks.forEach((track) => {
+          track.stop();
+        });
+
+        // videoElem.srcObject = null;
+        document.querySelector("#myVideo").srcObject = null;
+        // document.querySelector("#friendVideo").setAttribute("hidden", true);
+        // document.querySelector("#friendVideo").srcObject = null;
+        // console.log(localStream.getVideoTracks());
       });
     </script>
   </body>
