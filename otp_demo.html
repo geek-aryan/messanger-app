@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div {
+        width: 50%;
+        padding-top: 200px;
+        margin: auto;
+      }
+      input {
+        /* width: 40px; */
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <form action="">
+        <input type="text" name="" id="otp1" size="1" maxlength="1" />
+        <input type="text" name="" id="otp2" size="1" maxlength="1" />
+        <input type="text" name="" id="otp3" size="1" maxlength="1" />
+        <input type="text" name="" id="otp4" size="1" maxlength="1" />
+        <br /><br />
+        <button>Submit</button>
+      </form>
+    </div>
+
+    <script>
+      const otp1 = document.querySelector("#otp1");
+      const otp2 = document.querySelector("#otp2");
+      const otp3 = document.querySelector("#otp3");
+      const otp4 = document.querySelector("#otp4");
+      otp1.focus();
+      otp1.addEventListener("input", (e) => {
+        console.log(e);
+        if (e.inputType === "deleteContentBackward") {
+          return;
+        }
+        otp2.focus();
+      });
+      otp2.addEventListener("input", (e) => {
+        if (e.inputType === "deleteContentBackward") {
+          otp1.focus();
+          return;
+        }
+        otp3.focus();
+      });
+      otp3.addEventListener("input", (e) => {
+        if (e.inputType === "deleteContentBackward") {
+          otp2.focus();
+          return;
+        }
+        otp4.focus();
+      });
+      otp4.addEventListener("input", (e) => {
+        if (e.inputType === "deleteContentBackward") {
+          otp3.focus();
+          return;
+        }
+        // otp2.focus();
+      });
+    </script>
+  </body>
+</html>
